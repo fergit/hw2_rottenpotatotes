@@ -9,33 +9,48 @@ class MoviesController < ApplicationController
   def index
 	
 	@all_ratings = Movie.ratings	
-	
+	@redirect = false
+
 	if params[:ratings].nil? then
-		session[:ratings] = session[:ratings] || @all_ratings.keys
+		session[:ratings] = session[:ratings] || @all_ratings
+		@redirect = true
 	else
 		session[:ratings] = params[:ratings].keys
 	end
 	
-	
 	session[:sort_by] = params[:sort_by] unless params[:sort_by].nil?
+
+	if params[:sort_by].nil? then
+		@redirect = true
+	end
+
+	if @redirect then
+	#	params[:ratings] = session[:ratings]
+	#	params[:sort_by] = session[:sort_by]
+		redirect_to movies_path :ratings => encodeRatingFilter(session[:ratings]), :sort_by => session[:sort_by]
+	end 
+	
 	@sort_filter = session[:sort_by]
 
 	@rating_filter = session[:ratings]
+	#debugger
 	@movies = Movie.order(@sort_filter).where(:rating => @rating_filter)
 
-	@all_ratings.each do |k,v|
-		@all_ratings[k] = false unless @rating_filter.include?(k)
-	end
 
-	@preserved_ratings = Hash.new()
-
-	@rating_filter.each do |k|
-		@preserved_ratings[k] = 1
-	end
+	@preserved_ratings = encodeRatingFilter(@rating_filter)
 	
 
 	
   end
+
+  def encodeRatingFilter(rating_filter)
+	@preserved_ratings = Hash.new()
+
+	rating_filter.each do |k|
+		@preserved_ratings[k] = 1
+	end
+	@preserved_ratings
+  end #encodeRatingFilter
 
   def new
     # default: render 'new' template
