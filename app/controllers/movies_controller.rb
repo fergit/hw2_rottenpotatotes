@@ -15,7 +15,17 @@ class MoviesController < ApplicationController
 	@rating_filter = @all_ratings.keys
 	@rating_filter = params[:ratings].keys unless params[:ratings].nil?
 	@movies = Movie.order(@sort_filter).where(:rating => @rating_filter)
-#	debugger
+
+	@all_ratings.each do |k,v|
+		@all_ratings[k] = false unless @rating_filter.include?(k)
+	end
+
+	@preserved_ratings = Hash.new()
+
+	@rating_filter.each do |k|
+		@preserved_ratings[k] = 1
+	end
+	#debugger
 
 	
   end
