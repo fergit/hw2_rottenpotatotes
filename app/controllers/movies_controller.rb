@@ -22,6 +22,7 @@ class MoviesController < ApplicationController
 
 	if params[:sort_by].nil? then
 		@redirect = true
+		session[:sort_by] = id
 	end
 
 	if @redirect then
